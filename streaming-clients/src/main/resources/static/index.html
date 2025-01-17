@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Stats & Alerts</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<h1>Realtime Stats & Alerts</h1>
+
+<div>
+    <canvas id="countChart" width="600" height="300"></canvas>
+    <canvas id="avgChart" width="600" height="300"></canvas>
+</div>
+
+<div id="alertsBox" style="background: #f8d7da; padding: 1em; margin-top: 1em;">
+    <h3>Alerts</h3>
+    <ul id="alertsList"></ul>
+</div>
+
+<script>
+    let statsData = [];
+    let alertsData = [];
+
+    // Подключаемся к SSE для stats
+    const statsSource = new EventSource('/sse/stats');
+
+    statsSource.onmessage = function(event) {
+        console.log("[SSE stats] incoming:", event.data);
+        try {
+            const arr = JSON.parse(event.data);
+            statsData = arr.map(item => JSON.parse(item));
+            updateCharts(statsData);
+        } catch(e) {
+            console.warn("Error parse SSE stats:", e);
+        }
+    };
+
+    const alertsSource = new EventSource('/sse/alerts');
+
+    alertsSource.onmessage = function(event) {
+        console.log("[SSE alerts] incoming:", event.data);
+        try {
+            const arr = JSON.parse(event.data);
+            alertsData = arr;
+            updateAlerts(alertsData);
+        } catch(e) {
+            console.warn("Error parse SSE alerts:", e);
+        }
+    };
+
+    const ctxCount = document.getElementById('countChart').getContext('2d');
+    const countChart = new Chart(ctxCount, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Count per minute',
+                data: [],
+                borderColor: 'blue',
+                fill: false
+            }]
+        }
+    });
+
+    const ctxAvg = document.getElementById('avgChart').getContext('2d');
+    const avgChart = new Chart(ctxAvg, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'AvgCheck per minute',
+                data: [],
+                borderColor: 'green',
+                fill: false
+            }]
+        }
+    });
+
+    function updateCharts(stats) {
+
+        const labels = stats.map((s, i) => "" + i);
+        const counts = stats.map(s => s.count);
+        const avgs = stats.map(s => s.avgCheck);
+
+        countChart.data.labels = labels;
+        countChart.data.datasets[0].data = counts;
+        countChart.update();
+
+        avgChart.data.labels = labels;
+        avgChart.data.datasets[0].data = avgs;
+        avgChart.update();
+    }
+
+    function updateAlerts(arr) {
+        const listEl = document.getElementById('alertsList');
+        listEl.innerHTML = "";
+        arr.forEach(msg => {
+            const li = document.createElement('li');
+            li.textContent = msg;
+            listEl.appendChild(li);
+        });
+    }
+</script>
+</body>
+</html>

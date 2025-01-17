@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: streaming-clients
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: ${spring.kafka.consumer.group-id:stats-consumer-1}
+      auto-offset-reset: latest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+logging:
+  level:
+    root: INFO
+    com.example.streaming_clients: DEBUG
+
+server:
+  port: ${server.port:8086}

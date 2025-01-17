@@ -1,0 +1,41 @@
+# retail_processing/src/main/resources/application.yml
+
+spring:
+  application:
+    name: retail_processing
+  kafka:
+    bootstrap-servers: localhost:9092
+    listener:
+      type: batch
+      ack-mode: manual
+    producer:
+      acks: all
+      retries: 2147483647
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      transaction-id-prefix: retail_processing
+      properties:
+        enable-idempotence: true
+        security.protocol: PLAINTEXT
+    consumer:
+      group-id: retail_processing-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+logging:
+  level:
+    root: INFO
+    com.example.retail_processing.etl: DEBUG
+    com.example.retail_processing: DEBUG
+    com.example.retail_processing.etl.StatisticsService: INFO
+
+data:
+  generator:
+    sleep:
+      millis: 1000
+
+server:
+  port: 8083
+
