@@ -6,7 +6,7 @@
 
 Java 17 · Apache Kafka · Apache Flink (DataStream API) · Gradle/Maven · Docker
 
-**Что делает пайплайн**
+**Что делает пайплайн:**
 
 - Читает события из Kafka (ключевые топики: retail.sales, retail.returns)
 
