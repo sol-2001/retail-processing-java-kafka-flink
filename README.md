@@ -4,6 +4,7 @@
 
 ## Архитектура
 
+```mermaid
 flowchart LR
   subgraph Producers
     A[streaming-clients] -->|JSON events| K[(Kafka topics)]
